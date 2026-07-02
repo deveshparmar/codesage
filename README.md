@@ -2,7 +2,7 @@
 
 **AI-powered code intelligence platform** for automated pull request reviews, semantic code search, and repository understanding.
 
-Built as a production-style **modular monolith** (Java 21, Spring Boot 3) — designed to demonstrate SDE-2 backend engineering: system design, event-driven architecture, RAG, and provider-agnostic integrations.
+Built as a production-style **modular monolith** (Java 21, Spring Boot 3) - designed to demonstrate SDE-2 backend engineering: system design, event-driven architecture, RAG, and provider-agnostic integrations.
 
 
 ## Highlights
