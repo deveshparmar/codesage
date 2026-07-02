@@ -4,7 +4,6 @@
 
 Built as a production-style **modular monolith** (Java 21, Spring Boot 3) — designed to demonstrate SDE-2 backend engineering: system design, event-driven architecture, RAG, and provider-agnostic integrations.
 
-[![CI](https://github.com/YOUR_GITHUB_USERNAME/codesage/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/codesage/actions/workflows/ci.yml)
 
 ## Highlights
 
