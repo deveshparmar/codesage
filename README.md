@@ -89,7 +89,3 @@ docs/
 ├── kafka-events.md
 └── folder-structure.md
 ```
-
-## Author
-
-**Your Name** — [GitHub](https://github.com/deveshparmar) · [LinkedIn](https://www.linkedin.com/in/devesh-parmar-875990200/)
