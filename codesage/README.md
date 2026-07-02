@@ -43,9 +43,3 @@ All settings in `src/main/resources/application.yml` under `codesage.*`.
 | `KAFKA_BOOTSTRAP_SERVERS` | localhost:9092 | Kafka brokers |
 | `INDEXING_WORKSPACE` | /tmp/codesage/repos | Local git clone cache |
 | `SERVER_PORT` | 8080 | HTTP port |
-
-## Documentation
-
-- [Architecture](../docs/architecture.md)
-- [Database schema](../docs/database-schema.md)
-- [Kafka events](../docs/kafka-events.md)
