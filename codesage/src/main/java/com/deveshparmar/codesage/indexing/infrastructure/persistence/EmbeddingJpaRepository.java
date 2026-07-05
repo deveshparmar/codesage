@@ -14,7 +14,7 @@ public interface EmbeddingJpaRepository extends JpaRepository<EmbeddingEntity, U
 
     boolean existsByChunkId(UUID chunkId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM EmbeddingEntity e WHERE e.chunkId IN :chunkIds")
     void deleteByChunkIdIn(List<UUID> chunkIds);
 }

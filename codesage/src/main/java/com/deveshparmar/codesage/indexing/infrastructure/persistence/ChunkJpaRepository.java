@@ -14,7 +14,9 @@ public interface ChunkJpaRepository extends JpaRepository<ChunkEntity, UUID> {
 
     List<ChunkEntity> findByFileId(UUID fileId);
 
-    @Modifying
+    List<ChunkEntity> findByFileIdIn(List<UUID> fileIds);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM ChunkEntity c WHERE c.fileId IN :fileIds")
     void deleteByFileIdIn(List<UUID> fileIds);
 

@@ -99,23 +99,39 @@ public class ChunkPersistenceService {
     }
 
     @Transactional
+    public void clearBranchIndexIfExists(UUID repositoryId, String branchName) {
+        branchRepository.findByRepositoryIdAndName(repositoryId, branchName)
+                .ifPresent(branch -> clearBranchIndex(branch.getId()));
+    }
+
+    @Transactional
     public void clearBranchIndex(UUID branchId) {
         List<IndexedFileEntity> files = fileRepository.findByBranchId(branchId);
-        if (!files.isEmpty()) {
-            for (IndexedFileEntity file : files) {
-                removeFileChunks(file.getId());
-            }
-            fileRepository.deleteByBranchId(branchId);
+        if (files.isEmpty()) {
+            return;
         }
+
+        List<UUID> fileIds = files.stream().map(IndexedFileEntity::getId).toList();
+        List<UUID> chunkIds = chunkRepository.findByFileIdIn(fileIds).stream()
+                .map(ChunkEntity::getId)
+                .toList();
+
+        if (!chunkIds.isEmpty()) {
+            embeddingRepository.deleteByChunkIdIn(chunkIds);
+            chunkRepository.deleteByFileIdIn(fileIds);
+        }
+
+        fileRepository.deleteByBranchId(branchId);
     }
 
     private void removeFileChunks(UUID fileId) {
         List<ChunkEntity> chunks = chunkRepository.findByFileId(fileId);
-        if (!chunks.isEmpty()) {
-            List<UUID> chunkIds = chunks.stream().map(ChunkEntity::getId).toList();
-            embeddingRepository.deleteByChunkIdIn(chunkIds);
-            chunkRepository.deleteAll(chunks);
+        if (chunks.isEmpty()) {
+            return;
         }
+        List<UUID> chunkIds = chunks.stream().map(ChunkEntity::getId).toList();
+        embeddingRepository.deleteByChunkIdIn(chunkIds);
+        chunkRepository.deleteByFileIdIn(List.of(fileId));
     }
 
     public record PersistedFileResult(UUID fileId, List<UUID> newChunkIds, boolean changed) {

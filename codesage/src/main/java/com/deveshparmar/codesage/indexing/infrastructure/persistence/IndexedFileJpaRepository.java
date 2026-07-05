@@ -14,7 +14,7 @@ public interface IndexedFileJpaRepository extends JpaRepository<IndexedFileEntit
 
     List<IndexedFileEntity> findByBranchId(UUID branchId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM IndexedFileEntity f WHERE f.branchId = :branchId")
     void deleteByBranchId(UUID branchId);
 }
