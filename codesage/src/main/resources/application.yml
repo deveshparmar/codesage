@@ -22,6 +22,8 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+    placeholders:
+      embedding_dimensions: ${EMBEDDING_DIMENSIONS:3072}
 
   data:
     redis:
@@ -81,12 +83,25 @@ codesage:
       - node_modules
       - .gradle
     embedding-batch-size: 20
+  embedding:
+    provider: ${EMBEDDING_PROVIDER:OPENAI_COMPATIBLE}
+    api-key: ${EMBEDDING_API_KEY:${OPENAI_API_KEY:}}
+    base-url: ${EMBEDDING_BASE_URL:https://api.openai.com/v1}
+    model: ${EMBEDDING_MODEL:text-embedding-3-large}
+    dimensions: ${EMBEDDING_DIMENSIONS:3072}
+    timeout: PT60S
+    request-dimensions: ${EMBEDDING_REQUEST_DIMENSIONS:true}
+    require-api-key: ${EMBEDDING_REQUIRE_API_KEY:true}
+    gemini:
+      base-url: https://generativelanguage.googleapis.com/v1beta
+      task-type: RETRIEVAL_DOCUMENT
+    huggingface:
+      base-url: https://api-inference.huggingface.co
+      wait-for-model: true
   openai:
     api-key: ${OPENAI_API_KEY:}
-    base-url: https://api.openai.com/v1
-    embedding-model: text-embedding-3-large
-    embedding-dimensions: 3072
-    chat-model: gpt-4.1
+    base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+    chat-model: ${OPENAI_CHAT_MODEL:gpt-4.1}
     chat-max-tokens: 4096
     timeout: PT60S
   rag:

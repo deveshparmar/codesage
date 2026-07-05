@@ -1,6 +1,7 @@
 package com.deveshparmar.codesage;
 
 import com.deveshparmar.codesage.indexing.config.IndexingProperties;
+import com.deveshparmar.codesage.llm.config.EmbeddingProperties;
 import com.deveshparmar.codesage.llm.config.OpenAiProperties;
 import com.deveshparmar.codesage.platform.config.CodeSageProperties;
 import com.deveshparmar.codesage.rag.config.RagProperties;
@@ -15,6 +16,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
         CodeSageProperties.class,
         GitHubProperties.class,
         IndexingProperties.class,
+        EmbeddingProperties.class,
         OpenAiProperties.class,
         RagProperties.class,
         ReviewProperties.class

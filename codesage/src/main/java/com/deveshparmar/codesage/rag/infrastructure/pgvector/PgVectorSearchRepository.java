@@ -1,6 +1,7 @@
 package com.deveshparmar.codesage.rag.infrastructure.pgvector;
 
 import com.deveshparmar.codesage.common.domain.ChunkType;
+import com.deveshparmar.codesage.llm.config.EmbeddingProperties;
 import com.deveshparmar.codesage.rag.domain.RetrievedContext;
 import com.deveshparmar.codesage.rag.domain.SimilaritySearchQuery;
 import com.deveshparmar.codesage.rag.domain.VectorSearchPort;
@@ -22,10 +23,13 @@ public class PgVectorSearchRepository implements VectorSearchPort {
 
     private final EntityManager entityManager;
     private final ObjectMapper objectMapper;
+    private final EmbeddingProperties embeddingProperties;
 
     @Override
     @SuppressWarnings("unchecked")
     public List<RetrievedContext> search(SimilaritySearchQuery query) {
+        int dimensions = embeddingProperties.getDimensions();
+        String halfvecCast = "halfvec(" + dimensions + ")";
         StringBuilder sql = new StringBuilder("""
                 SELECT c.id AS chunk_id,
                        c.file_id,
@@ -38,13 +42,13 @@ public class PgVectorSearchRepository implements VectorSearchPort {
                        c.content,
                        c.metadata,
                        f.path AS file_path,
-                       1 - (e.embedding::halfvec(3072) <=> :queryVector::halfvec(3072)) AS similarity
+                       1 - (e.embedding::%s <=> :queryVector::%s) AS similarity
                 FROM chunks c
                 JOIN embeddings e ON e.chunk_id = c.id
                 JOIN files f ON f.id = c.file_id
                 JOIN branches b ON b.id = f.branch_id
                 WHERE b.repository_id = :repositoryId
-                """);
+                """.formatted(halfvecCast, halfvecCast));
 
         if (query.chunkType() != null) {
             sql.append(" AND c.chunk_type = :chunkType");
@@ -60,10 +64,10 @@ public class PgVectorSearchRepository implements VectorSearchPort {
         }
 
         sql.append("""
-                 AND 1 - (e.embedding::halfvec(3072) <=> :queryVector::halfvec(3072)) >= :minSimilarity
-                ORDER BY e.embedding::halfvec(3072) <=> :queryVector::halfvec(3072)
+                 AND 1 - (e.embedding::%s <=> :queryVector::%s) >= :minSimilarity
+                ORDER BY e.embedding::%s <=> :queryVector::%s
                 LIMIT :topK
-                """);
+                """.formatted(halfvecCast, halfvecCast, halfvecCast, halfvecCast));
 
         var nativeQuery = entityManager.createNativeQuery(sql.toString())
                 .setParameter("repositoryId", query.repositoryId())

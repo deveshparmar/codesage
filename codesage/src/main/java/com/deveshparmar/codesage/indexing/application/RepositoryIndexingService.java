@@ -9,7 +9,7 @@ import com.deveshparmar.codesage.indexing.domain.RepositoryClonePort;
 import com.deveshparmar.codesage.indexing.infrastructure.kafka.IndexingEventPublisher;
 import com.deveshparmar.codesage.indexing.infrastructure.persistence.BranchEntity;
 import com.deveshparmar.codesage.indexing.infrastructure.redis.IndexingLockService;
-import com.deveshparmar.codesage.llm.config.OpenAiProperties;
+import com.deveshparmar.codesage.llm.application.EmbeddingService;
 import com.deveshparmar.codesage.platform.infrastructure.kafka.RepositoryIndexCompletedPayload;
 import com.deveshparmar.codesage.platform.infrastructure.kafka.RepositoryIndexRequestedPayload;
 import com.deveshparmar.codesage.platform.infrastructure.persistence.RepositoryEntity;
@@ -35,7 +35,7 @@ public class RepositoryIndexingService {
     private final IndexingLockService indexingLockService;
     private final IndexingStatusService indexingStatusService;
     private final IndexingEventPublisher indexingEventPublisher;
-    private final OpenAiProperties openAiProperties;
+    private final EmbeddingService embeddingService;
 
     @Transactional
     public IndexingResult indexRepository(UUID organizationId, UUID correlationId, RepositoryIndexRequestedPayload request) {
@@ -127,7 +127,7 @@ public class RepositoryIndexingService {
                         correlationId,
                         repository.getId(),
                         chunkIdsForEmbedding,
-                        openAiProperties.getEmbeddingModel()
+                        embeddingService.modelName()
                 );
             }
 

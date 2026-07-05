@@ -17,14 +17,12 @@ public class OpenAiStartupValidator {
         String apiKey = openAiProperties.getApiKey();
         if (apiKey == null || apiKey.isBlank()) {
             log.warn(
-                    "OpenAI API key is NOT loaded. Set environment variable OPENAI_API_KEY in your IntelliJ "
-                            + "Run Configuration (Run -> Edit Configurations -> Environment variables), then restart "
-                            + "the app. Terminal/shell exports are not picked up by IntelliJ automatically."
+                    "Chat LLM API key is NOT loaded. Set OPENAI_API_KEY for PR review generation."
             );
             return;
         }
 
         String prefix = apiKey.length() <= 8 ? "***" : apiKey.substring(0, 8) + "...";
-        log.info("OpenAI API key loaded successfully (prefix: {})", prefix);
+        log.info("Chat LLM API key loaded successfully (prefix: {})", prefix);
     }
 }
