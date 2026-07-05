@@ -51,7 +51,10 @@ public class OpenAiCodeReviewClient implements CodeReviewLlmPort {
     @Override
     public LlmReviewResponse reviewCode(String systemPrompt, String userPrompt) {
         if (openAiProperties.getApiKey() == null || openAiProperties.getApiKey().isBlank()) {
-            throw new CodeSageException("OpenAI API key is not configured");
+            throw new CodeSageException(
+                    "OpenAI API key is not configured. Set OPENAI_API_KEY in IntelliJ Run Configuration "
+                            + "environment variables and restart the application."
+            );
         }
 
         try {

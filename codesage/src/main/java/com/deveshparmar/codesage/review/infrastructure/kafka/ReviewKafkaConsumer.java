@@ -2,6 +2,7 @@ package com.deveshparmar.codesage.review.infrastructure.kafka;
 
 import com.deveshparmar.codesage.indexing.infrastructure.redis.KafkaEventIdempotencyService;
 import com.deveshparmar.codesage.platform.infrastructure.kafka.EventEnvelope;
+import com.deveshparmar.codesage.platform.infrastructure.kafka.KafkaEventJsonReader;
 import com.deveshparmar.codesage.platform.infrastructure.kafka.ReviewRequestedPayload;
 import com.deveshparmar.codesage.review.application.PullRequestReviewService;
 import lombok.RequiredArgsConstructor;
@@ -15,13 +16,16 @@ import org.springframework.stereotype.Component;
 public class ReviewKafkaConsumer {
 
     private final KafkaEventIdempotencyService idempotencyService;
+    private final KafkaEventJsonReader kafkaEventJsonReader;
     private final PullRequestReviewService pullRequestReviewService;
 
     @KafkaListener(
             topics = "${codesage.kafka.topics.review-requested}",
             groupId = "codesage-review"
     )
-    public void onReviewRequested(EventEnvelope<ReviewRequestedPayload> envelope) {
+    public void onReviewRequested(String message) {
+        EventEnvelope<ReviewRequestedPayload> envelope =
+                kafkaEventJsonReader.read(message, ReviewRequestedPayload.class);
         if (idempotencyService.alreadyProcessed(envelope.eventId())) {
             log.info("Skipping duplicate review event {}", envelope.eventId());
             return;
@@ -35,6 +39,7 @@ public class ReviewKafkaConsumer {
             );
         } catch (Exception ex) {
             idempotencyService.release(envelope.eventId());
+            log.error("Review event {} failed for review {}", envelope.eventId(), envelope.payload().reviewId(), ex);
             throw ex;
         }
     }

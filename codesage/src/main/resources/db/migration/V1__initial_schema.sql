@@ -92,7 +92,8 @@ CREATE TABLE embeddings (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_embeddings_hnsw ON embeddings USING hnsw (embedding vector_cosine_ops);
+-- HNSW on vector type is limited to 2000 dims; cast to halfvec for 3072-dim embeddings.
+CREATE INDEX idx_embeddings_hnsw ON embeddings USING hnsw ((embedding::halfvec(3072)) halfvec_cosine_ops);
 
 CREATE TABLE pull_requests (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),

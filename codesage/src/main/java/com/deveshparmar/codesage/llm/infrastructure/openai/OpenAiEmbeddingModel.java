@@ -28,7 +28,10 @@ public class OpenAiEmbeddingModel implements EmbeddingModel {
     @Override
     public List<float[]> embed(List<String> inputs) {
         if (openAiProperties.getApiKey() == null || openAiProperties.getApiKey().isBlank()) {
-            throw new CodeSageException("OpenAI API key is not configured");
+            throw new CodeSageException(
+                    "OpenAI API key is not configured. Set OPENAI_API_KEY in IntelliJ Run Configuration "
+                            + "environment variables and restart the application."
+            );
         }
         if (inputs.isEmpty()) {
             return List.of();

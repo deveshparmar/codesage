@@ -1,6 +1,5 @@
 package com.deveshparmar.codesage.indexing.application;
 
-import com.deveshparmar.codesage.common.domain.IndexingStatus;
 import com.deveshparmar.codesage.common.exception.CodeSageException;
 import com.deveshparmar.codesage.common.exception.InvalidRequestException;
 import com.deveshparmar.codesage.indexing.domain.ClonedRepository;
@@ -20,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +33,7 @@ public class RepositoryIndexingService {
     private final SourceFileDiscoveryService sourceFileDiscoveryService;
     private final ChunkPersistenceService chunkPersistenceService;
     private final IndexingLockService indexingLockService;
+    private final IndexingStatusService indexingStatusService;
     private final IndexingEventPublisher indexingEventPublisher;
     private final OpenAiProperties openAiProperties;
 
@@ -57,8 +56,7 @@ public class RepositoryIndexingService {
             throw new InvalidRequestException("Repository SCM access token is not configured");
         }
 
-        repository.setIndexingStatus(IndexingStatus.IN_PROGRESS);
-        repositoryRepository.save(repository);
+        indexingStatusService.markInProgress(request.repositoryId());
 
         String branchName = request.branchName() != null && !request.branchName().isBlank()
                 ? request.branchName()
@@ -67,13 +65,7 @@ public class RepositoryIndexingService {
 
         try {
             if (request.fullReindex()) {
-                BranchEntity existingBranch = chunkPersistenceService.upsertBranch(
-                        repository.getId(),
-                        branchName,
-                        commitSha,
-                        branchName.equals(repository.getDefaultBranch())
-                );
-                chunkPersistenceService.clearBranchIndex(existingBranch.getId());
+                chunkPersistenceService.clearBranchIndexIfExists(repository.getId(), branchName);
             }
 
             ClonedRepository clonedRepository = repositoryClonePort.cloneOrUpdate(
@@ -115,9 +107,7 @@ public class RepositoryIndexingService {
 
             chunkPersistenceService.markBranchIndexed(branch.getId());
 
-            repository.setIndexingStatus(IndexingStatus.COMPLETED);
-            repository.setLastIndexedAt(Instant.now());
-            repositoryRepository.save(repository);
+            indexingStatusService.markCompleted(request.repositoryId());
 
             IndexingResult indexingResult = new IndexingResult(
                     repository.getId(),
@@ -144,8 +134,7 @@ public class RepositoryIndexingService {
             publishCompleted(organizationId, correlationId, indexingResult);
             return indexingResult;
         } catch (Exception ex) {
-            repository.setIndexingStatus(IndexingStatus.FAILED);
-            repositoryRepository.save(repository);
+            indexingStatusService.markFailed(request.repositoryId());
             throw new CodeSageException("Repository indexing failed for " + repository.getId(), ex);
         } finally {
             indexingLockService.release(request.repositoryId());

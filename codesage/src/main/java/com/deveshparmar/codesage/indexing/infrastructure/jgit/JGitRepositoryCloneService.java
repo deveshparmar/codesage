@@ -11,6 +11,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.util.FileUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -104,13 +105,9 @@ public class JGitRepositoryCloneService implements RepositoryClonePort {
     }
 
     private void deleteRecursively(Path path) throws IOException {
-        if (Files.isDirectory(path)) {
-            try (var stream = Files.list(path)) {
-                for (Path child : stream.toList()) {
-                    deleteRecursively(child);
-                }
-            }
+        if (!Files.exists(path)) {
+            return;
         }
-        Files.deleteIfExists(path);
+        FileUtils.delete(path.toFile(), FileUtils.RECURSIVE | FileUtils.RETRY);
     }
 }
