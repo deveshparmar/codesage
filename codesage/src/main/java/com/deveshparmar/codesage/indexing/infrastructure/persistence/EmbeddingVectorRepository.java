@@ -24,7 +24,7 @@ public class EmbeddingVectorRepository {
         UUID embeddingId = UUID.randomUUID();
         entityManager.createNativeQuery("""
                         INSERT INTO embeddings (id, chunk_id, embedding, model, created_at)
-                        VALUES (:id, :chunkId, :embedding::vector, :model, :createdAt)
+                        VALUES (:id, :chunkId, CAST(:embedding AS vector), :model, :createdAt)
                         ON CONFLICT (chunk_id) DO UPDATE
                         SET embedding = EXCLUDED.embedding,
                             model = EXCLUDED.model,

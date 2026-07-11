@@ -42,7 +42,7 @@ public class PgVectorSearchRepository implements VectorSearchPort {
                        c.content,
                        c.metadata,
                        f.path AS file_path,
-                       1 - (e.embedding::%s <=> :queryVector::%s) AS similarity
+                       1 - (e.embedding::%s <=> CAST(:queryVector AS %s)) AS similarity
                 FROM chunks c
                 JOIN embeddings e ON e.chunk_id = c.id
                 JOIN files f ON f.id = c.file_id
@@ -64,8 +64,8 @@ public class PgVectorSearchRepository implements VectorSearchPort {
         }
 
         sql.append("""
-                 AND 1 - (e.embedding::%s <=> :queryVector::%s) >= :minSimilarity
-                ORDER BY e.embedding::%s <=> :queryVector::%s
+                 AND 1 - (e.embedding::%s <=> CAST(:queryVector AS %s)) >= :minSimilarity
+                ORDER BY e.embedding::%s <=> CAST(:queryVector AS %s)
                 LIMIT :topK
                 """.formatted(halfvecCast, halfvecCast, halfvecCast, halfvecCast));
 
