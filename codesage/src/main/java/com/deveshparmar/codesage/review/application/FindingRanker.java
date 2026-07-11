@@ -25,7 +25,7 @@ public class FindingRanker {
         };
         double categoryScore = switch (finding.category().toUpperCase()) {
             case "SECURITY" -> 30.0;
-            case "BUG" -> 25.0;
+            case "BUG" -> 5.0;
             case "PERFORMANCE" -> 15.0;
             case "MAINTAINABILITY" -> 10.0;
             default -> 5.0;
