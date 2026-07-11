@@ -1,0 +1,31 @@
+# Ollama local profile.
+#
+# One-time setup:
+#   ollama pull nomic-embed-text
+#   ollama pull qwen2.5-coder:1.5b
+#
+# Run with:
+#   ./gradlew bootRun --args='--spring.profiles.active=ollama'
+codesage:
+  embedding:
+    provider: OPENAI_COMPATIBLE
+    api-key: ollama
+    base-url: http://localhost:11434/v1
+    model: nomic-embed-text
+    dimensions: 768
+    request-dimensions: false
+    require-api-key: false
+  openai:
+    # The code review client uses the OpenAI-compatible chat API.
+    # Ollama ignores the placeholder API key but the app requires a non-empty value.
+    api-key: ollama
+    base-url: http://localhost:11434/v1
+    chat-model: ${OLLAMA_CHAT_MODEL:qwen2.5-coder:1.5b}
+    chat-max-tokens: 2048
+  rag:
+    min-similarity: 0.45
+
+spring:
+  flyway:
+    placeholders:
+      embedding_dimensions: 768

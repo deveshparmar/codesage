@@ -1,0 +1,12 @@
+# Google Gemini free tier — get key at https://aistudio.google.com/apikey
+codesage:
+  embedding:
+    provider: GEMINI
+    api-key: ${GEMINI_API_KEY:}
+    model: text-embedding-004
+    dimensions: 768
+
+spring:
+  flyway:
+    placeholders:
+      embedding_dimensions: 768
